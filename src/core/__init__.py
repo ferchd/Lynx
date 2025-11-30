@@ -1,14 +1,12 @@
-from .editor.document import Document
-from .buffer.piece_table import PieceTable, UndoStack
-from .syntax.tokenizer import IncrementalTokenizer, Token, TokenType
-from .lsp.client import LSPClient
+from core.models.document import Document
+from core.models.text_buffer import TextBuffer
+from core.buffer.gap_buffer import GapBuffer
+from core.buffer.undo_stack import UndoStack, Edit
 
 __all__ = [
     "Document",
-    "PieceTable",
+    "TextBuffer",
+    "GapBuffer",
     "UndoStack",
-    "IncrementalTokenizer",
-    "Token",
-    "TokenType",
-    "LSPClient",
+    "Edit",
 ]
