@@ -1,136 +1,75 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 
 Popup {
     id: findModal
     x: (parent.width - width) / 2
-    y: 100
-    width: 400
+    y: 80
+    width: 500
     height: 120
     modal: false
     focus: true
     z: 101
     
+    property string searchText: findInput.text
+    
     background: Rectangle {
-        color: "#252526"
-        border.color: "#3c3c3c"
-        radius: 4
-        layer.enabled: true
-        layer.effect: DropShadow {
-            transparentBorder: true
-            horizontalOffset: 0
-            verticalOffset: 4
-            radius: 16
-            samples: 33
-            color: "#40000000"
-        }
+        color: "#282C34"
+        border.color: "#181A1F"
+        border.width: 1
     }
     
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 15
+        anchors.margins: 16
+        spacing: 12
         
         Text {
             text: "Find"
-            color: "#cccccc"
-            font.pixelSize: 14
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
             font.bold: true
         }
         
         TextField {
             id: findInput
             Layout.fillWidth: true
-            placeholderText: "Find in file..."
-            color: "#cccccc"
+            placeholderText: "Search..."
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
+            
             background: Rectangle {
-                color: "#3c3c3c"
-                border.color: "#007acc"
+                color: "#21252B"
+                border.color: findInput.activeFocus ? "#528BFF" : "#181A1F"
                 border.width: 1
-                radius: 2
             }
             
-            onAccepted: {
-                findNext()
-            }
+            onAccepted: mainWindow.findNext()
         }
         
         RowLayout {
             Layout.fillWidth: true
-            
-            CheckBox {
-                id: caseSensitiveCheck
-                text: "Match Case"
-                checked: false
-                indicator: Rectangle {
-                    implicitWidth: 16
-                    implicitHeight: 16
-                    radius: 3
-                    color: caseSensitiveCheck.checked ? "#007acc" : "#3c3c3c"
-                    border.color: caseSensitiveCheck.checked ? "#007acc" : "#666666"
-                    
-                    Text {
-                        text: "✓"
-                        color: "white"
-                        font.pixelSize: 12
-                        anchors.centerIn: parent
-                        visible: caseSensitiveCheck.checked
-                    }
-                }
-                
-                contentItem: Text {
-                    text: caseSensitiveCheck.text
-                    color: "#cccccc"
-                    font.pixelSize: 12
-                    verticalAlignment: Text.AlignVCenter
-                    leftPadding: caseSensitiveCheck.indicator.width + caseSensitiveCheck.spacing
-                }
-            }
-            
-            CheckBox {
-                id: wholeWordCheck
-                text: "Whole Word"
-                checked: false
-                indicator: Rectangle {
-                    implicitWidth: 16
-                    implicitHeight: 16
-                    radius: 3
-                    color: wholeWordCheck.checked ? "#007acc" : "#3c3c3c"
-                    border.color: wholeWordCheck.checked ? "#007acc" : "#666666"
-                    
-                    Text {
-                        text: "✓"
-                        color: "white"
-                        font.pixelSize: 12
-                        anchors.centerIn: parent
-                        visible: wholeWordCheck.checked
-                    }
-                }
-                
-                contentItem: Text {
-                    text: wholeWordCheck.text
-                    color: "#cccccc"
-                    font.pixelSize: 12
-                    verticalAlignment: Text.AlignVCenter
-                    leftPadding: wholeWordCheck.indicator.width + wholeWordCheck.spacing
-                }
-            }
-            
-            Item {
-                Layout.fillWidth: true
-            }
+            spacing: 8
             
             Button {
                 text: "Previous"
-                onClicked: findPrevious()
+                onClicked: mainWindow.findPrevious()
+                
                 background: Rectangle {
-                    color: "#0e639c"
-                    radius: 2
+                    implicitWidth: 90
+                    implicitHeight: 28
+                    color: parent.pressed ? "#4D78CC" : 
+                           (parent.hovered ? "#4D78CC" : "#528BFF")
                 }
+                
                 contentItem: Text {
                     text: parent.text
-                    color: "white"
+                    color: "#FFFFFF"
+                    font.family: "Consolas"
+                    font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -138,33 +77,26 @@ Popup {
             
             Button {
                 text: "Next"
-                onClicked: findNext()
+                onClicked: mainWindow.findNext()
+                
                 background: Rectangle {
-                    color: "#0e639c"
-                    radius: 2
+                    implicitWidth: 90
+                    implicitHeight: 28
+                    color: parent.pressed ? "#4D78CC" : 
+                           (parent.hovered ? "#4D78CC" : "#528BFF")
                 }
+                
                 contentItem: Text {
                     text: parent.text
-                    color: "white"
+                    color: "#FFFFFF"
+                    font.family: "Consolas"
+                    font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
             }
             
-            Button {
-                text: "Replace"
-                onClicked: replaceModal.open()
-                background: Rectangle {
-                    color: "#3c3c3c"
-                    radius: 2
-                }
-                contentItem: Text {
-                    text: parent.text
-                    color: "#cccccc"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
+            Item { Layout.fillWidth: true }
         }
     }
     
@@ -176,5 +108,11 @@ Popup {
     
     onClosed: {
         modalOverlay.visible = false
+    }
+    
+    Shortcut {
+        sequence: "Escape"
+        enabled: findModal.visible
+        onActivated: findModal.close()
     }
 }

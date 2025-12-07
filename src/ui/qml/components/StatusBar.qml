@@ -3,46 +3,67 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
+    id: statusBar
     height: 22
-    color: "#2c3135"
+    color: "#21252B"
     
-    // Propiedades
     property var currentDocument: null
-    property string cursorPositionText: "Ln 1, Col 1"
+    property string cursorText: "Ln 1, Col 1"
+    
+    function updateCursorPosition(line, col) {
+        cursorText = "Ln " + line + ", Col " + col
+    }
+    
+    // Top border
+    Rectangle {
+        anchors.top: parent.top
+        width: parent.width
+        height: 1
+        color: "#181A1F"
+    }
     
     RowLayout {
         anchors.fill: parent
-        spacing: 20
-        
-        Text {
-            Layout.leftMargin: 10
-            text: currentDocument ? currentDocument.language : ""
-            color: "#8e9499"
-            font.pixelSize: 10
-        }
+        anchors.leftMargin: 12
+        anchors.rightMargin: 12
+        spacing: 16
         
         Text {
             id: cursorPosition
-            text: cursorPositionText
-            color: "#8e9499"
-            font.pixelSize: 10
-        }
-        
-        Item {
-            Layout.fillWidth: true
+            text: cursorText
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 11
         }
         
         Text {
+            text: currentDocument ? currentDocument.language.toUpperCase() : ""
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 11
+        }
+        
+        Item { Layout.fillWidth: true }
+        
+        Text {
             text: "UTF-8"
-            color: "#8e9499"
-            font.pixelSize: 10
+            color: "#5C6370"
+            font.family: "Consolas"
+            font.pixelSize: 11
         }
         
         Text {
             text: "LF"
-            color: "#8e9499"
-            font.pixelSize: 10
-            Layout.rightMargin: 10
+            color: "#5C6370"
+            font.family: "Consolas"
+            font.pixelSize: 11
+        }
+        
+        Text {
+            text: "Spaces: 4"
+            color: "#5C6370"
+            font.family: "Consolas"
+            font.pixelSize: 11
         }
     }
 }

@@ -1,41 +1,35 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 
 Popup {
     id: goToLineModal
     x: (parent.width - width) / 2
-    y: 100
-    width: 300
-    height: 100
+    y: 80
+    width: 400
+    height: 120
     modal: false
     focus: true
     z: 101
     
+    property string lineNumber: goToLineInput.text
+    
     background: Rectangle {
-        color: "#252526"
-        border.color: "#3c3c3c"
-        radius: 4
-        layer.enabled: true
-        layer.effect: DropShadow {
-            transparentBorder: true
-            horizontalOffset: 0
-            verticalOffset: 4
-            radius: 16
-            samples: 33
-            color: "#40000000"
-        }
+        color: "#282C34"
+        border.color: "#181A1F"
+        border.width: 1
     }
     
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 15
+        anchors.margins: 16
+        spacing: 12
         
         Text {
             text: "Go to Line"
-            color: "#cccccc"
-            font.pixelSize: 14
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
             font.bold: true
         }
         
@@ -43,52 +37,42 @@ Popup {
             id: goToLineInput
             Layout.fillWidth: true
             placeholderText: "Line number..."
-            color: "#cccccc"
-            background: Rectangle {
-                color: "#3c3c3c"
-                border.color: "#007acc"
-                border.width: 1
-                radius: 2
-            }
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
             validator: IntValidator { bottom: 1; top: 999999 }
             
-            onAccepted: {
-                goToLine()
+            background: Rectangle {
+                color: "#21252B"
+                border.color: goToLineInput.activeFocus ? "#528BFF" : "#181A1F"
+                border.width: 1
             }
+            
+            onAccepted: mainWindow.goToLine()
         }
         
         RowLayout {
             Layout.fillWidth: true
+            spacing: 8
             
-            Item {
-                Layout.fillWidth: true
-            }
-            
-            Button {
-                text: "Cancel"
-                onClicked: goToLineModal.close()
-                background: Rectangle {
-                    color: "#3c3c3c"
-                    radius: 2
-                }
-                contentItem: Text {
-                    text: parent.text
-                    color: "#cccccc"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
+            Item { Layout.fillWidth: true }
             
             Button {
                 text: "Go"
-                onClicked: goToLine()
+                onClicked: mainWindow.goToLine()
+                
                 background: Rectangle {
-                    color: "#0e639c"
-                    radius: 2
+                    implicitWidth: 80
+                    implicitHeight: 28
+                    color: parent.pressed ? "#4D78CC" : 
+                           (parent.hovered ? "#4D78CC" : "#528BFF")
                 }
+                
                 contentItem: Text {
                     text: parent.text
-                    color: "white"
+                    color: "#FFFFFF"
+                    font.family: "Consolas"
+                    font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -104,5 +88,11 @@ Popup {
     
     onClosed: {
         modalOverlay.visible = false
+    }
+    
+    Shortcut {
+        sequence: "Escape"
+        enabled: goToLineModal.visible
+        onActivated: goToLineModal.close()
     }
 }

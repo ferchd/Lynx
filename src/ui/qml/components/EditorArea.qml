@@ -3,29 +3,47 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 RowLayout {
-    Layout.fillWidth: true
-    Layout.fillHeight: true
+    id: editorArea
     spacing: 0
     
-    // Propiedades
     property var currentDocument: null
+    property int lineNumber: 1
+    property int columnNumber: 1
+    property int cursorPosition: textEditor.cursorPosition
+    property bool hasSelection: textEditor.selectedText.length > 0
+
     
+    function selectText(start, end) {
+        textEditor.select(start, end)
+        textEditor.cursorPosition = end
+    }
+    
+    function setCursorPosition(position) {
+        textEditor.cursorPosition = position
+    }
+    
+    // Line Numbers
     ScrollView {
         id: lineNumberScroll
         Layout.preferredWidth: 50
         Layout.fillHeight: true
         ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
         
         TextArea {
             id: lineNumbers
             width: 50
-            font.family: "Monospace"
+            font.family: "Consolas"
             font.pixelSize: 13
-            color: "#6e7681"
-            background: Rectangle { color: "#1d1f21" }
+            color: "#5C6370"
+            background: Rectangle {
+                color: "#282C34"
+            }
             readOnly: true
             selectByMouse: false
             wrapMode: TextEdit.NoWrap
+            verticalAlignment: TextEdit.AlignTop
+            rightPadding: 8
             
             property int lineCount: 1
             
@@ -47,16 +65,19 @@ RowLayout {
         }
     }
     
+    // Separator
     Rectangle {
         Layout.preferredWidth: 1
         Layout.fillHeight: true
-        color: "#2d2d30"
+        color: "#181A1F"
     }
     
+    // Main Editor
     ScrollView {
         id: editorScroll
         Layout.fillWidth: true
         Layout.fillHeight: true
+        clip: true
         
         ScrollBar.vertical.onPositionChanged: {
             lineNumberScroll.ScrollBar.vertical.position = ScrollBar.vertical.position
@@ -65,12 +86,42 @@ RowLayout {
         TextArea {
             id: textEditor
             text: currentDocument ? currentDocument.text : ""
-            font.family: "Monospace"
+            font.family: "Consolas"
             font.pixelSize: 13
-            color: "#c5c8c6"
-            background: Rectangle { color: "#1d1f21" }
+            color: "#ABB2BF"
+            
+            background: Rectangle {
+                color: "#282C34"
+            }
+            
             selectByMouse: true
+            selectByKeyboard: true
             wrapMode: TextEdit.NoWrap
+            
+            // Atom One Dark selection colors
+            selectionColor: "#3E4451"
+            selectedTextColor: "#ABB2BF"
+            
+            // Blinking cursor
+            cursorDelegate: Rectangle {
+                width: 2
+                color: "#528BFF"
+                visible: textEditor.cursorVisible
+                
+                SequentialAnimation on visible {
+                    loops: Animation.Infinite
+                    running: textEditor.focus
+                    
+                    PropertyAnimation {
+                        to: true
+                        duration: 500
+                    }
+                    PropertyAnimation {
+                        to: false
+                        duration: 500
+                    }
+                }
+            }
             
             property bool internalChange: false
             
@@ -80,23 +131,23 @@ RowLayout {
                 }
                 
                 lineNumbers.updateLineNumbers()
-                cursorPositionChanged()
+                updateCursorInfo()
             }
             
             onCursorPositionChanged: {
-                cursorPositionChanged()
+                updateCursorInfo()
+            }
+            
+            function updateCursorInfo() {
+                var text = textEditor.text
+                var cursorPos = textEditor.cursorPosition
+                var textBeforeCursor = text.substring(0, cursorPos)
+                var lines = textBeforeCursor.split('\n')
+                
+                editorArea.lineNumber = lines.length
+                editorArea.columnNumber = lines[lines.length - 1].length + 1
+                editorArea.cursorPositionChanged()
             }
         }
-    }
-    
-    // Señal para notificar cambios en la posición del cursor
-    signal cursorPositionChanged()
-    
-    // Función para actualizar el texto del editor
-    function updateText(newText) {
-        textEditor.internalChange = true
-        textEditor.text = newText
-        textEditor.internalChange = false
-        lineNumbers.updateLineNumbers()
     }
 }

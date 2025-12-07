@@ -2,37 +2,24 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
-import Qt5Compat.GraphicalEffects
 import Lynx 1.0
 import "components"
 
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: 1200
-    height: 800
+    width: 1400
+    height: 900
     title: "Lynx" + (editor.currentDocument ? 
            " - " + editor.currentDocument.fileName + 
            (editor.currentDocument.modified ? " •" : "") : "")
     
-    color: "#1d1f21"
-
+    // Atom One Dark Colors
+    color: "#282C34"
+    
     property bool sidebarVisible: false
     
-    // Fondo oscuro semitransparente para modales
-    ModalOverlay {
-        id: modalOverlay
-        onCloseRequested: {
-            findModal.close()
-            replaceModal.close()
-            goToLineModal.close()
-            commandPalette.close()
-        }
-    }
-    
-    // Barra de menús superior completa
-    menuBar: MenuBarComponent {}
-    
+    // File Dialogs
     FileDialog {
         id: fileOpenDialog
         fileMode: FileDialog.OpenFile
@@ -60,222 +47,38 @@ ApplicationWindow {
         }
     }
     
-    // Modal de Buscar
-    FindModal {
-        id: findModal
-        onOpened: modalOverlay.visible = true
-        onClosed: modalOverlay.visible = false
-    }
+    // Menu Bar
+    menuBar: MenuBarComponent {}
     
-    // Modal de Reemplazar
-    ReplaceModal {
-        id: replaceModal
-        onOpened: modalOverlay.visible = true
-        onClosed: modalOverlay.visible = false
-    }
-
-    // Modal de Ir a Línea
-    GoToLineModal {
-        id: goToLineModal
-        onOpened: modalOverlay.visible = true
-        onClosed: modalOverlay.visible = false
-    }
-
-    // Command Palette (Paleta de Comandos)
-    CommandPalette {
-        id: commandPalette
-        onOpened: modalOverlay.visible = true
-        onClosed: modalOverlay.visible = false
-    }
-    
-    // Modelo de comandos para la paleta
-    ListModel {
-        id: commandsModel
-        
-        ListElement {
-            name: "New File"
-            shortcut: "Ctrl+N"
-            action: "newFile"
-        }
-        ListElement {
-            name: "Open File..."
-            shortcut: "Ctrl+O"
-            action: "openFile"
-        }
-        ListElement {
-            name: "Save"
-            shortcut: "Ctrl+S"
-            action: "save"
-        }
-        ListElement {
-            name: "Save As..."
-            shortcut: "Ctrl+Shift+S"
-            action: "saveAs"
-        }
-        ListElement {
-            name: "Find"
-            shortcut: "Ctrl+F"
-            action: "find"
-        }
-        ListElement {
-            name: "Replace"
-            shortcut: "Ctrl+H"
-            action: "replace"
-        }
-        ListElement {
-            name: "Go to Line..."
-            shortcut: "Ctrl+G"
-            action: "goToLine"
-        }
-        ListElement {
-            name: "Toggle Terminal"
-            shortcut: "Ctrl+`"
-            action: "toggleTerminal"
-        }
-        ListElement {
-            name: "Toggle Sidebar"
-            shortcut: "Ctrl+B"
-            action: "toggleSidebar"
-        }
-    }
-    
-    // Función para filtrar comandos
-    function filterCommands() {
-        var filter = commandInput.text.toLowerCase()
-        filteredCommands.clear()
-        
-        for (var i = 0; i < commandsModel.count; i++) {
-            var command = commandsModel.get(i)
-            if (command.name.toLowerCase().includes(filter)) {
-                filteredCommands.append(command)
-            }
-        }
-        
-        if (filteredCommands.count > 0) {
-            commandList.currentIndex = 0
-        }
-    }
-    
-    // Modelo filtrado para la lista de comandos
-    ListModel {
-        id: filteredCommands
-    }
-    
-    // Función para ejecutar el comando seleccionado
-    function executeSelectedCommand() {
-        if (commandList.currentIndex >= 0) {
-            var command = filteredCommands.get(commandList.currentIndex)
-            
-            switch (command.action) {
-                case "newFile":
-                    editor.newDocument()
-                    break
-                case "openFile":
-                    fileOpenDialog.open()
-                    break
-                case "save":
-                    if (editor.currentDocument) {
-                        editor.currentDocument.save()
-                    }
-                    break
-                case "saveAs":
-                    fileSaveDialog.open()
-                    break
-                case "find":
-                    findModal.open()
-                    break
-                case "replace":
-                    replaceModal.open()
-                    break
-                case "goToLine":
-                    goToLineModal.open()
-                    break
-                case "toggleTerminal":
-                    console.log("Toggle Terminal")
-                    break
-                case "toggleSidebar":
-                    console.log("Toggle Sidebar")
-                    break
-            }
-            
+    // Modal Overlay
+    ModalOverlay {
+        id: modalOverlay
+        onCloseRequested: {
+            findModal.close()
+            replaceModal.close()
+            goToLineModal.close()
             commandPalette.close()
         }
     }
     
-    function findNext() {
-        if (!editor.currentDocument || findInput.text === "") return
-        
-        var matches = editor.currentDocument.search(
-            findInput.text,
-            caseSensitiveCheck.checked,
-            wholeWordCheck.checked
-        )
-        
-        if (matches.length === 0) {
-            console.log("No matches found")
-            return
-        }
-        
-        var match = editor.currentDocument.findNext(textEditor.cursorPosition)
-        if (match.start !== undefined) {
-            textEditor.select(match.start, match.end)
-            textEditor.cursorPosition = match.end
-        }
-    }
-
-    function findPrevious() {
-        if (!editor.currentDocument || findInput.text === "") return
-        
-        var matches = editor.currentDocument.search(
-            findInput.text,
-            caseSensitiveCheck.checked,
-            wholeWordCheck.checked
-        )
-        
-        if (matches.length === 0) return
-        
-        var match = editor.currentDocument.findPrevious(textEditor.cursorPosition)
-        if (match.start !== undefined) {
-            textEditor.select(match.start, match.end)
-            textEditor.cursorPosition = match.start
-        }
-    }
-
-    function replaceCurrent() {
-        if (!editor.currentDocument || textEditor.selectedText === "") return
-        
-        var success = editor.currentDocument.replaceCurrent(replaceWithInput.text)
-        if (success) {
-            findNext()
-        }
-    }
-
-    function replaceAll() {
-        if (!editor.currentDocument || replaceFindInput.text === "") return
-        
-        var count = editor.currentDocument.replaceAll(
-            replaceFindInput.text,
-            replaceWithInput.text,
-            replaceCaseSensitiveCheck.checked,
-            replaceWholeWordCheck.checked
-        )
-        
-        console.log("Replaced " + count + " occurrences")
-        replaceModal.close()
+    // Modals
+    FindModal {
+        id: findModal
     }
     
-    function goToLine() {
-        if (!editor.currentDocument) return
-        
-        var lineNumber = parseInt(goToLineInput.text)
-        if (isNaN(lineNumber) || lineNumber < 1) return
-        
-        var position = editor.currentDocument.goToLine(lineNumber)
-        textEditor.cursorPosition = position
-        goToLineModal.close()
+    ReplaceModal {
+        id: replaceModal
     }
     
-    // Atajos de teclado globales
+    GoToLineModal {
+        id: goToLineModal
+    }
+    
+    CommandPalette {
+        id: commandPalette
+    }
+    
+    // Global Shortcuts
     Shortcut {
         sequence: "Ctrl+F"
         onActivated: findModal.open()
@@ -298,53 +101,43 @@ ApplicationWindow {
 
     Shortcut {
         sequence: "Ctrl+B"
-        onActivated: {
-            sidebar.toggleRequested()
-        }
+        onActivated: sidebarVisible = !sidebarVisible
     }
     
-    Row {
+    // Main Layout
+    Item {
         anchors.fill: parent
-        spacing: 0
         
         Sidebar {
             id: sidebar
-            height: parent.height
-            onToggleRequested: {
-                sidebar.collapsed = !sidebar.collapsed
-            }
-            onOpenFolderRequested: {
-                folderOpenDialog.open()
-            }
-            onSidebarWidthChanged: {
-                // Actualizar el ancho expandido si es necesario
-            }
+            visible: sidebarVisible
+            onOpenFolderRequested: folderOpenDialog.open()
         }
         
-        // Separador visual
-        Rectangle {
-            width: 1
-            height: parent.height
-            color: "#181a1c"
-            visible: !sidebar.collapsed
-        }
-        
-        // Contenido principal que se expande/contrae dinámicamente
+        // Main Content Area
         Item {
             id: mainContent
-            width: parent.width - (sidebar.collapsed ? sidebar.collapsedWidth : sidebar.expandedWidth)
-            height: parent.height
+            anchors.left: parent.left
+            anchors.leftMargin: sidebarVisible ? sidebar.width : 0
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             
-            // El contenido principal se ajusta automáticamente
-            Column {
+            Behavior on anchors.leftMargin {
+                NumberAnimation {
+                    duration: 300
+                    easing.type: Easing.InOutQuad
+                }
+            }
+            
+            ColumnLayout {
                 anchors.fill: parent
                 spacing: 0
                 
-                // Tab bar
+                // Tab Bar (multiple documents)
                 TabBar {
                     id: tabBar
-                    width: parent.width
-                    height: editor.documents.length > 1 ? 35 : 0
+                    Layout.fillWidth: true
                     visible: editor.documents.length > 1
                     documents: editor.documents
                     currentDocument: editor.currentDocument
@@ -358,11 +151,10 @@ ApplicationWindow {
                     }
                 }
                 
-                // Single tab header
+                // Single Tab Header (one document)
                 SingleTabHeader {
                     id: singleTabHeader
-                    width: parent.width
-                    height: editor.documents.length === 1 ? 35 : 0
+                    Layout.fillWidth: true
                     visible: editor.documents.length === 1
                     currentDocument: editor.currentDocument
                     
@@ -371,44 +163,118 @@ ApplicationWindow {
                     }
                 }
                 
-                // Editor area
+                // Editor Area
                 EditorArea {
                     id: editorArea
-                    width: parent.width
-                    height: parent.height - 
-                           (editor.documents.length > 1 ? tabBar.height : 0) -
-                           (editor.documents.length === 1 ? singleTabHeader.height : 0) -
-                           statusBar.height
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     currentDocument: editor.currentDocument
                     
                     onCursorPositionChanged: {
-                        updateCursorPosition()
+                        statusBar.updateCursorPosition(editorArea.lineNumber, editorArea.columnNumber)
                     }
                 }
                 
-                // Status bar
+                // Status Bar
                 StatusBar {
                     id: statusBar
-                    width: parent.width
-                    height: 22
+                    Layout.fillWidth: true
                     currentDocument: editor.currentDocument
-                    cursorPositionText: cursorPosition.text
                 }
             }
         }
     }
     
-    // Función para actualizar la posición del cursor
-    function updateCursorPosition() {
+    // Helper Functions
+    function findNext() {
+        if (!editor.currentDocument || findModal.searchText === "") return
+        
+        var matches = editor.currentDocument.search(findModal.searchText, false, false)
+        if (matches.length === 0) return
+        
+        var match = editor.currentDocument.findNext(editorArea.cursorPosition)
+        if (match.start !== undefined) {
+            editorArea.selectText(match.start, match.end)
+        }
+    }
+
+    function findPrevious() {
+        if (!editor.currentDocument || findModal.searchText === "") return
+        
+        var matches = editor.currentDocument.search(findModal.searchText, false, false)
+        if (matches.length === 0) return
+        
+        var match = editor.currentDocument.findPrevious(editorArea.cursorPosition)
+        if (match.start !== undefined) {
+            editorArea.selectText(match.start, match.end)
+        }
+    }
+
+    function replaceCurrent() {
+        if (!editor.currentDocument || !editorArea.hasSelection) return
+        
+        var success = editor.currentDocument.replaceCurrent(replaceModal.replaceText)
+        if (success) {
+            findNext()
+        }
+    }
+
+    function replaceAll() {
+        if (!editor.currentDocument || replaceModal.searchText === "") return
+        
+        var count = editor.currentDocument.replaceAll(
+            replaceModal.searchText,
+            replaceModal.replaceText,
+            false,
+            false
+        )
+        
+        console.log("Replaced " + count + " occurrences")
+        replaceModal.close()
+    }
+    
+    function goToLine() {
         if (!editor.currentDocument) return
         
-        var text = textEditor.text
-        var cursorPos = textEditor.cursorPosition
-        var textBeforeCursor = text.substring(0, cursorPos)
-        var lines = textBeforeCursor.split('\n')
-        var line = lines.length
-        var column = lines[lines.length - 1].length + 1
+        var lineNumber = parseInt(goToLineModal.lineNumber)
+        if (isNaN(lineNumber) || lineNumber < 1) return
         
-        cursorPosition.text = "Ln " + line + ", Col " + column
+        var position = editor.currentDocument.goToLine(lineNumber)
+        editorArea.setCursorPosition(position)
+        goToLineModal.close()
+    }
+    
+    function executeCommand(action) {
+        switch (action) {
+            case "newFile":
+                editor.newDocument()
+                break
+            case "openFile":
+                fileOpenDialog.open()
+                break
+            case "openFolder":
+                folderOpenDialog.open()
+                break
+            case "save":
+                if (editor.currentDocument) {
+                    editor.currentDocument.save()
+                }
+                break
+            case "saveAs":
+                fileSaveDialog.open()
+                break
+            case "find":
+                findModal.open()
+                break
+            case "replace":
+                replaceModal.open()
+                break
+            case "goToLine":
+                goToLineModal.open()
+                break
+            case "toggleSidebar":
+                sidebarVisible = !sidebarVisible
+                break
+        }
     }
 }

@@ -1,5 +1,4 @@
 import QtQuick
-import Qt5Compat.GraphicalEffects
 
 Rectangle {
     id: modalOverlay
@@ -8,17 +7,19 @@ Rectangle {
     visible: false
     z: 100
     
-    layer.enabled: true
-    layer.effect: FastBlur {
-        radius: 16
-    }
-
     signal closeRequested()
+    
+    opacity: visible ? 1.0 : 0.0
+    
+    Behavior on opacity {
+        NumberAnimation {
+            duration: 200
+            easing.type: Easing.InOutQuad
+        }
+    }
     
     MouseArea {
         anchors.fill: parent
-        onClicked: {
-            closeRequested()
-        }
+        onClicked: closeRequested()
     }
 }

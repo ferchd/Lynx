@@ -1,41 +1,36 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 
 Popup {
     id: replaceModal
     x: (parent.width - width) / 2
-    y: 100
-    width: 400
-    height: 160
+    y: 80
+    width: 500
+    height: 180
     modal: false
     focus: true
     z: 101
     
+    property string searchText: replaceFindInput.text
+    property string replaceText: replaceWithInput.text
+    
     background: Rectangle {
-        color: "#252526"
-        border.color: "#3c3c3c"
-        radius: 4
-        layer.enabled: true
-        layer.effect: DropShadow {
-            transparentBorder: true
-            horizontalOffset: 0
-            verticalOffset: 4
-            radius: 16
-            samples: 33
-            color: "#40000000"
-        }
+        color: "#282C34"
+        border.color: "#181A1F"
+        border.width: 1
     }
     
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 15
+        anchors.margins: 16
+        spacing: 12
         
         Text {
             text: "Replace"
-            color: "#cccccc"
-            font.pixelSize: 14
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
             font.bold: true
         }
         
@@ -43,12 +38,14 @@ Popup {
             id: replaceFindInput
             Layout.fillWidth: true
             placeholderText: "Find..."
-            color: "#cccccc"
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
+            
             background: Rectangle {
-                color: "#3c3c3c"
-                border.color: "#007acc"
+                color: "#21252B"
+                border.color: replaceFindInput.activeFocus ? "#528BFF" : "#181A1F"
                 border.width: 1
-                radius: 2
             }
         }
         
@@ -56,90 +53,37 @@ Popup {
             id: replaceWithInput
             Layout.fillWidth: true
             placeholderText: "Replace with..."
-            color: "#cccccc"
+            color: "#ABB2BF"
+            font.family: "Consolas"
+            font.pixelSize: 13
+            
             background: Rectangle {
-                color: "#3c3c3c"
-                border.color: "#007acc"
+                color: "#21252B"
+                border.color: replaceWithInput.activeFocus ? "#528BFF" : "#181A1F"
                 border.width: 1
-                radius: 2
             }
         }
         
         RowLayout {
             Layout.fillWidth: true
-            
-            CheckBox {
-                id: replaceCaseSensitiveCheck
-                text: "Match Case"
-                checked: false
-                indicator: Rectangle {
-                    implicitWidth: 16
-                    implicitHeight: 16
-                    radius: 3
-                    color: replaceCaseSensitiveCheck.checked ? "#007acc" : "#3c3c3c"
-                    border.color: replaceCaseSensitiveCheck.checked ? "#007acc" : "#666666"
-                    
-                    Text {
-                        text: "✓"
-                        color: "white"
-                        font.pixelSize: 12
-                        anchors.centerIn: parent
-                        visible: replaceCaseSensitiveCheck.checked
-                    }
-                }
-                
-                contentItem: Text {
-                    text: replaceCaseSensitiveCheck.text
-                    color: "#cccccc"
-                    font.pixelSize: 12
-                    verticalAlignment: Text.AlignVCenter
-                    leftPadding: replaceCaseSensitiveCheck.indicator.width + replaceCaseSensitiveCheck.spacing
-                }
-            }
-            
-            CheckBox {
-                id: replaceWholeWordCheck
-                text: "Whole Word"
-                checked: false
-                indicator: Rectangle {
-                    implicitWidth: 16
-                    implicitHeight: 16
-                    radius: 3
-                    color: replaceWholeWordCheck.checked ? "#007acc" : "#3c3c3c"
-                    border.color: replaceWholeWordCheck.checked ? "#007acc" : "#666666"
-                    
-                    Text {
-                        text: "✓"
-                        color: "white"
-                        font.pixelSize: 12
-                        anchors.centerIn: parent
-                        visible: replaceWholeWordCheck.checked
-                    }
-                }
-                
-                contentItem: Text {
-                    text: replaceWholeWordCheck.text
-                    color: "#cccccc"
-                    font.pixelSize: 12
-                    verticalAlignment: Text.AlignVCenter
-                    leftPadding: replaceWholeWordCheck.indicator.width + replaceWholeWordCheck.spacing
-                }
-            }
-            
-            Item {
-                Layout.fillWidth: true
-            }
+            spacing: 8
             
             Button {
                 text: "Replace"
-                onClicked: replaceCurrent()
+                onClicked: mainWindow.replaceCurrent()
+                
                 background: Rectangle {
-                    color: "#0e639c"
-                    radius: 2
+                    implicitWidth: 90
+                    implicitHeight: 28
+                    color: parent.pressed ? "#4D78CC" : 
+                           (parent.hovered ? "#4D78CC" : "#528BFF")
                 }
+                
                 contentItem: Text {
                     text: parent.text
-                    color: "white"
+                    color: "#FFFFFF"
+                    font.family: "Consolas"
+                    font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -147,18 +91,26 @@ Popup {
             
             Button {
                 text: "Replace All"
-                onClicked: replaceAll()
+                onClicked: mainWindow.replaceAll()
+                
                 background: Rectangle {
-                    color: "#0e639c"
-                    radius: 2
+                    implicitWidth: 100
+                    implicitHeight: 28
+                    color: parent.pressed ? "#4D78CC" : 
+                           (parent.hovered ? "#4D78CC" : "#528BFF")
                 }
+                
                 contentItem: Text {
                     text: parent.text
-                    color: "white"
+                    color: "#FFFFFF"
+                    font.family: "Consolas"
+                    font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
             }
+            
+            Item { Layout.fillWidth: true }
         }
     }
     
@@ -170,5 +122,11 @@ Popup {
     
     onClosed: {
         modalOverlay.visible = false
+    }
+    
+    Shortcut {
+        sequence: "Escape"
+        enabled: replaceModal.visible
+        onActivated: replaceModal.close()
     }
 }

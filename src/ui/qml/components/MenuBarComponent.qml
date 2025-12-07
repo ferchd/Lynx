@@ -2,31 +2,95 @@ import QtQuick
 import QtQuick.Controls
 
 MenuBar {
+    id: menuBar
+    
+    background: Rectangle {
+        color: "#21252B"
+        
+        Rectangle {
+            anchors.bottom: parent.bottom
+            width: parent.width
+            height: 1
+            color: "#181A1F"
+        }
+    }
+    
+    delegate: MenuBarItem {
+        id: menuBarItem
+        
+        contentItem: Text {
+            text: menuBarItem.text
+            font.pixelSize: 13
+            font.family: "Consolas"
+            opacity: enabled ? 1.0 : 0.5
+            color: menuBarItem.highlighted ? "#ABB2BF" : "#5C6370"
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        background: Rectangle {
+            opacity: enabled ? 1 : 0.3
+            color: menuBarItem.highlighted ? "#2C313A" : "transparent"
+        }
+    }
+    
+    // File Menu
     Menu {
         title: "&File"
-
-    Action {
-        text: "&New"
-        shortcut: StandardKey.New
-        onTriggered: editor.newDocument()
-    }
-    
-    Action {
-        text: "&Open..."
-        shortcut: StandardKey.Open
-        onTriggered: fileOpenDialog.open()
-    }
-    
-    Action {
-        text: "Open &Folder..."
-        shortcut: "Ctrl+K Ctrl+O"
-        onTriggered: folderOpenDialog.open()
-    }
-    
-    MenuSeparator {}
+        
+        delegate: MenuItem {
+            id: menuItem
+            
+            contentItem: Text {
+                text: menuItem.text
+                font.pixelSize: 12
+                font.family: "Consolas"
+                opacity: enabled ? 1.0 : 0.5
+                color: menuItem.highlighted ? "#ABB2BF" : "#5C6370"
+            }
+            
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 28
+                opacity: enabled ? 1 : 0.3
+                color: menuItem.highlighted ? "#2C313A" : "transparent"
+            }
+        }
+        
+        background: Rectangle {
+            implicitWidth: 200
+            color: "#282C34"
+            border.color: "#181A1F"
+            border.width: 1
+        }
         
         Action {
-            text: "&Save"
+            text: "New File"
+            shortcut: StandardKey.New
+            onTriggered: editor.newDocument()
+        }
+        
+        Action {
+            text: "Open File..."
+            shortcut: StandardKey.Open
+            onTriggered: fileOpenDialog.open()
+        }
+        
+        Action {
+            text: "Open Folder..."
+            shortcut: "Ctrl+Shift+O"
+            onTriggered: folderOpenDialog.open()
+        }
+        
+        MenuSeparator {
+            contentItem: Rectangle {
+                implicitHeight: 1
+                color: "#181A1F"
+            }
+        }
+        
+        Action {
+            text: "Save"
             shortcut: StandardKey.Save
             enabled: editor.currentDocument !== null
             onTriggered: {
@@ -37,22 +101,21 @@ MenuBar {
         }
         
         Action {
-            text: "Save &As..."
+            text: "Save As..."
             shortcut: StandardKey.SaveAs
             enabled: editor.currentDocument !== null
             onTriggered: fileSaveDialog.open()
         }
         
-        Action {
-            text: "Save A&ll"
-            shortcut: "Ctrl+K S"
-            onTriggered: console.log("Save All clicked")
+        MenuSeparator {
+            contentItem: Rectangle {
+                implicitHeight: 1
+                color: "#181A1F"
+            }
         }
         
-        MenuSeparator {}
-        
         Action {
-            text: "&Close Editor"
+            text: "Close Editor"
             shortcut: "Ctrl+W"
             enabled: editor.currentDocument !== null
             onTriggered: {
@@ -62,42 +125,52 @@ MenuBar {
             }
         }
         
-        Action {
-            text: "Close Folde&r"
-            shortcut: "Ctrl+K F"
-            onTriggered: console.log("Close Folder clicked")
-        }
-        
-        Action {
-            text: "Clos&e All"
-            onTriggered: {
-                while (editor.documents.length > 0) {
-                    editor.closeDocument(editor.documents[0])
-                }
+        MenuSeparator {
+            contentItem: Rectangle {
+                implicitHeight: 1
+                color: "#181A1F"
             }
         }
         
-        MenuSeparator {}
-        
         Action {
-            text: "&Preferences"
-            onTriggered: console.log("Preferences clicked")
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "E&xit"
+            text: "Exit"
             shortcut: StandardKey.Quit
             onTriggered: Qt.quit()
         }
     }
     
+    // Edit Menu
     Menu {
         title: "&Edit"
         
+        delegate: MenuItem {
+            id: editMenuItem
+            
+            contentItem: Text {
+                text: editMenuItem.text
+                font.pixelSize: 12
+                font.family: "Consolas"
+                opacity: enabled ? 1.0 : 0.5
+                color: editMenuItem.highlighted ? "#ABB2BF" : "#5C6370"
+            }
+            
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 28
+                opacity: enabled ? 1 : 0.3
+                color: editMenuItem.highlighted ? "#2C313A" : "transparent"
+            }
+        }
+        
+        background: Rectangle {
+            implicitWidth: 200
+            color: "#282C34"
+            border.color: "#181A1F"
+            border.width: 1
+        }
+        
         Action {
-            text: "&Undo"
+            text: "Undo"
             shortcut: StandardKey.Undo
             enabled: editor.currentDocument ? editor.currentDocument.canUndo : false
             onTriggered: {
@@ -108,7 +181,7 @@ MenuBar {
         }
         
         Action {
-            text: "&Redo"
+            text: "Redo"
             shortcut: StandardKey.Redo
             enabled: editor.currentDocument ? editor.currentDocument.canRedo : false
             onTriggered: {
@@ -118,288 +191,99 @@ MenuBar {
             }
         }
         
-        MenuSeparator {}
-        
-        Action {
-            text: "Cu&t"
-            shortcut: StandardKey.Cut
-            enabled: editor.currentDocument !== null
-            onTriggered: {
-                if (textEditor.selectedText) {
-                    textEditor.cut()
-                }
+        MenuSeparator {
+            contentItem: Rectangle {
+                implicitHeight: 1
+                color: "#181A1F"
             }
         }
         
         Action {
-            text: "&Copy"
-            shortcut: StandardKey.Copy
-            enabled: editor.currentDocument !== null
-            onTriggered: {
-                if (textEditor.selectedText) {
-                    textEditor.copy()
-                }
-            }
-        }
-        
-        Action {
-            text: "&Paste"
-            shortcut: StandardKey.Paste
-            enabled: editor.currentDocument !== null
-            onTriggered: textEditor.paste()
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "&Find"
+            text: "Find"
             shortcut: StandardKey.Find
             enabled: editor.currentDocument !== null
             onTriggered: findModal.open()
         }
         
         Action {
-            text: "Find and Re&place"
+            text: "Replace"
             shortcut: StandardKey.Replace
             enabled: editor.currentDocument !== null
             onTriggered: replaceModal.open()
         }
         
-        MenuSeparator {}
-        
         Action {
-            text: "Select &All"
-            shortcut: StandardKey.SelectAll
+            text: "Go to Line..."
+            shortcut: "Ctrl+G"
             enabled: editor.currentDocument !== null
-            onTriggered: textEditor.selectAll()
+            onTriggered: goToLineModal.open()
         }
     }
     
+    // View Menu
     Menu {
         title: "&View"
         
+        delegate: MenuItem {
+            id: viewMenuItem
+            
+            contentItem: Text {
+                text: viewMenuItem.text
+                font.pixelSize: 12
+                font.family: "Consolas"
+                opacity: enabled ? 1.0 : 0.5
+                color: viewMenuItem.highlighted ? "#ABB2BF" : "#5C6370"
+            }
+            
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 28
+                opacity: enabled ? 1 : 0.3
+                color: viewMenuItem.highlighted ? "#2C313A" : "transparent"
+            }
+        }
+        
+        background: Rectangle {
+            implicitWidth: 200
+            color: "#282C34"
+            border.color: "#181A1F"
+            border.width: 1
+        }
+        
         Action {
-            text: "Command Palet&te..."
+            text: "Command Palette..."
             shortcut: "Ctrl+Shift+P"
             onTriggered: commandPalette.open()
         }
         
-        MenuSeparator {}
-        
-        Menu {
-            title: "Appearance"
-            
-            Action {
-                text: "Fullscreen"
-                shortcut: "F11"
-                onTriggered: mainWindow.visibility === Window.FullScreen ? 
-                            mainWindow.visibility = Window.Windowed : 
-                            mainWindow.visibility = Window.FullScreen
-            }
-            
-            Action {
-                text: "Zen Mode"
-                shortcut: "Ctrl+K Z"
-                onTriggered: console.log("Zen Mode clicked")
+        MenuSeparator {
+            contentItem: Rectangle {
+                implicitHeight: 1
+                color: "#181A1F"
             }
         }
         
-        MenuSeparator {}
-        
         Action {
-            text: "Explorer"
-            shortcut: "Ctrl+Shift+E"
-            checkable: true
-            checked: true
-            onTriggered: console.log("Explorer toggled: " + checked)
+            text: "Toggle Sidebar"
+            shortcut: "Ctrl+B"
+            onTriggered: mainWindow.sidebarVisible = !mainWindow.sidebarVisible
+        }
+        
+        MenuSeparator {
+            contentItem: Rectangle {
+                implicitHeight: 1
+                color: "#181A1F"
+            }
         }
         
         Action {
-            text: "Search"
-            shortcut: "Ctrl+Shift+F"
-            onTriggered: findModal.open()
-        }
-        
-        Action {
-            text: "Source Control"
-            shortcut: "Ctrl+Shift+G"
-            onTriggered: console.log("Source Control clicked")
-        }
-        
-        Action {
-            text: "Run and Debug"
-            shortcut: "Ctrl+Shift+D"
-            onTriggered: console.log("Run and Debug clicked")
-        }
-        
-        Action {
-            text: "Extensions"
-            shortcut: "Ctrl+Shift+X"
-            onTriggered: console.log("Extensions clicked")
-        }
-    }
-    
-    Menu {
-        title: "&Go"
-        
-        Action {
-            text: "Back"
-            shortcut: "Alt+Left"
-            onTriggered: console.log("Back clicked")
-        }
-        
-        Action {
-            text: "Forward"
-            shortcut: "Alt+Right"
-            onTriggered: console.log("Forward clicked")
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "Go to File..."
-            shortcut: "Ctrl+P"
-            onTriggered: commandPalette.open()
-        }
-        
-        Action {
-            text: "Go to Symbol in File..."
-            shortcut: "Ctrl+Shift+O"
-            onTriggered: console.log("Go to Symbol in File clicked")
-        }
-        
-        Action {
-            text: "Go to Symbol in Workspace..."
-            shortcut: "Ctrl+T"
-            onTriggered: console.log("Go to Symbol in Workspace clicked")
-        }
-        
-        Action {
-            text: "Go to Line/Column..."
-            shortcut: "Ctrl+G"
-            onTriggered: goToLineModal.open()
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "Next Problem"
-            shortcut: "F8"
-            onTriggered: console.log("Next Problem clicked")
-        }
-        
-        Action {
-            text: "Previous Problem"
-            shortcut: "Shift+F8"
-            onTriggered: console.log("Previous Problem clicked")
-        }
-    }
-    
-    Menu {
-        title: "&Run"
-        
-        Action {
-            text: "Start Debugging"
-            shortcut: "F5"
-            onTriggered: console.log("Start Debugging clicked")
-        }
-        
-        Action {
-            text: "Run Without Debugging"
-            shortcut: "Ctrl+F5"
-            onTriggered: console.log("Run Without Debugging clicked")
-        }
-        
-        Action {
-            text: "Stop Debugging"
-            shortcut: "Shift+F5"
-            onTriggered: console.log("Stop Debugging clicked")
-        }
-        
-        Action {
-            text: "Restart Debugging"
-            shortcut: "Ctrl+Shift+F5"
-            onTriggered: console.log("Restart Debugging clicked")
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "Open Configurations"
-            onTriggered: console.log("Open Configurations clicked")
-        }
-        
-        Action {
-            text: "Add Configuration..."
-            onTriggered: console.log("Add Configuration clicked")
-        }
-    }
-    
-    Menu {
-        title: "&Terminal"
-        
-        Action {
-            text: "New Terminal"
-            shortcut: "Ctrl+`"
-            onTriggered: console.log("New Terminal clicked")
-        }
-        
-        Action {
-            text: "Split Terminal"
-            shortcut: "Ctrl+Shift+`"
-            onTriggered: console.log("Split Terminal clicked")
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "Run Task..."
-            onTriggered: console.log("Run Task clicked")
-        }
-        
-        Action {
-            text: "Run Build Task..."
-            shortcut: "Ctrl+Shift+B"
-            onTriggered: console.log("Run Build Task clicked")
-        }
-    }
-    
-    Menu {
-        title: "&Help"
-        
-        Action {
-            text: "Welcome"
-            onTriggered: console.log("Welcome clicked")
-        }
-        
-        Action {
-            text: "Documentation"
-            onTriggered: console.log("Documentation clicked")
-        }
-        
-        Action {
-            text: "Show All Commands"
-            shortcut: "Ctrl+Shift+P"
-            onTriggered: commandPalette.open()
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "Keyboard Shortcuts Reference"
-            onTriggered: console.log("Keyboard Shortcuts Reference clicked")
-        }
-        
-        Action {
-            text: "Tips and Tricks"
-            onTriggered: console.log("Tips and Tricks clicked")
-        }
-        
-        MenuSeparator {}
-        
-        Action {
-            text: "About Lynx Editor"
-            onTriggered: console.log("About Lynx Editor clicked")
+            text: "Fullscreen"
+            shortcut: "F11"
+            onTriggered: {
+                mainWindow.visibility === Window.FullScreen ? 
+                mainWindow.visibility = Window.Windowed : 
+                mainWindow.visibility = Window.FullScreen
+            }
         }
     }
 }
