@@ -36,7 +36,7 @@ MenuBar {
     
     // File Menu
     Menu {
-        title: "&File"
+        title: "File"
         
         delegate: MenuItem {
             id: menuItem
@@ -141,7 +141,7 @@ MenuBar {
     
     // Edit Menu
     Menu {
-        title: "&Edit"
+        title: "Edit"
         
         delegate: MenuItem {
             id: editMenuItem
@@ -222,7 +222,7 @@ MenuBar {
     
     // View Menu
     Menu {
-        title: "&View"
+        title: "View"
         
         delegate: MenuItem {
             id: viewMenuItem
